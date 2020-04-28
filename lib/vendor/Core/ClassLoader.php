@@ -1,5 +1,5 @@
 <?php
-namespace Livro\Core;
+namespace Vendor\Core;
 
 /**
  * Carrega a classe do framework
@@ -20,6 +20,8 @@ class ClassLoader
         echo "Inside addNamespaces..  {$prefix} "."<br>"; 
         // normalize the base directory with a trailing separator
         $base_dir = rtrim($base_dir, DIRECTORY_SEPARATOR) . '/';
+        echo "Base_dir ".$base_dir; 
+        echo "<br>"; 
 
         // initialize the namespace prefix array
         if (isset($this->prefixes[$prefix]) === false) {

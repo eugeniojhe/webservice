@@ -4,26 +4,29 @@ class RestServer
 {
     public static function run($request)
     {
-       $class = isset($request['class']?$request['class']:'');
-       $method = isset($request['method']?$request['methdo']:'');
+       $class = isset($request['class'])?$request['class']:'';
+       $method = isset($request['method'])?$request['method']:'';
        $response = null; 
        try{
+         echo "Testando se class {$class} existe";
+         echo "<br>";
+   
          if (class_exists($class)){
-             if(method_exists($method)){
+             if(method_exists($class,$method)){
                  $response = call_user_func(array($class,$method),$request);
                  return json_encode(array('status' => 'sucess',
                                     'data' =>$response));
 
              }else{
-                 error_message("Class {$class}::{$method} nao existe");
+                 $error_message ="Class {$class}::{$method} nao existe";
                  return json_encode(array('status' =>'error',
-                                          'data '=> $error_message))
+                                          'data '=> $error_message));
              }
 
          }else{
-             $error_message("Classe {$class} nao encontrada ");
+             $error_message = "Classe {$class} nao encontrada ";
              return json_encode(array('status' => 'error',
-                                       'data' => $error_message))
+                                       'data' => $error_message));
          }
        }catch(Exception $e){
            return json_encode(array('status' =>'erro',

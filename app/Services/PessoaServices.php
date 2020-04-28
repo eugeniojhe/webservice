@@ -1,12 +1,14 @@
 <?php 
-
-use Database\Transaction;
+use Vendor\Database\Transaction;
 class PessoaServices{
     public static function getData($request)
     {
         $id_pessoa = $request['id'];
         $pessoa_array = array();
-        $pessoa = Pessoa::find($id); 
+        echo "Vai chamar pessoa::find "."<br>"; 
+        Transaction::open('livro'); 
+        $pessoa = Pessoa::find($id_pessoa); 
+        echo "Chamou pessoa::find"."<br>"; 
         if ($pessoa){
             $pessoa_array = $pessoa->toArray(); 
         }else{

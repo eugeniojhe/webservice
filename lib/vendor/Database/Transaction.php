@@ -1,8 +1,7 @@
 <?php
 
-	namespace Database; 
+	namespace Vendor\Database; 
 	
-
 	final class Transaction{
 	
 	 	private static $conn;
@@ -13,7 +12,10 @@
 	 	} 
 	 	public static function open($dataBase){
 	 		if (empty(self::$conn)){
-				 self::$conn = Connection01::open($dataBase); 
+				 echo "VAI CHAMAR CONNECTION";
+				 echo "<br>"; 
+		  
+				 self::$conn = Connection::open($dataBase); 
 			     self::$conn->beginTransaction();
 	 		     self::$logger = NULL;
 
