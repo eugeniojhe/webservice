@@ -1,6 +1,4 @@
 <?php
-namespace Vendor\Core;
-
 /**
  * Carrega a classe do framework
  */
@@ -17,12 +15,8 @@ class ClassLoader
     {
         // normalize namespace prefix
         $prefix = trim($prefix, '\\') . '\\';
-        echo "Inside addNamespaces..  {$prefix} "."<br>"; 
         // normalize the base directory with a trailing separator
         $base_dir = rtrim($base_dir, DIRECTORY_SEPARATOR) . '/';
-        echo "Base_dir ".$base_dir; 
-        echo "<br>"; 
-
         // initialize the namespace prefix array
         if (isset($this->prefixes[$prefix]) === false) {
             $this->prefixes[$prefix] = array();
@@ -40,9 +34,8 @@ class ClassLoader
     {
         // the current namespace prefix
         $prefix = $class;
-        echo "STARTING LOADCLASS OF CLASSLOADER01 "."<br>";
-        echo " Prefix... ".$prefix."<br>"; 
-
+        echo " loadClass CLASSLOADER ".$class; 
+        echo "<br>"; 
         // work backwards through the namespace names of the fully-qualified
         // class name to find a mapped file name
         while (false !== $pos = strrpos($prefix, '\\')) {
@@ -57,7 +50,6 @@ class ClassLoader
             // try to load a mapped file for the prefix and relative class
             $mapped_file = $this->loadMappedFile($prefix, $relative_class);
             if ($mapped_file) {
-                echo "Classa found em classLoader01 ".$mapped_file."<br>"; 
                 return $mapped_file;
             }
 
@@ -67,7 +59,6 @@ class ClassLoader
         }
 
         // never found a mapped file
-        echo "class was not found in ClassLoader01 "."<br>"; 
         return false;
     }
 
@@ -101,6 +92,8 @@ class ClassLoader
 
     protected function requireFile($file)
     {
+        echo " File ".$file;
+        echo "<br>"; 
         if (file_exists($file)) {
             require $file;
             return true;

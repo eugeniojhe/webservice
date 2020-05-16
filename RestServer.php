@@ -8,9 +8,6 @@ class RestServer
        $method = isset($request['method'])?$request['method']:'';
        $response = null; 
        try{
-         echo "Testando se class {$class} existe";
-         echo "<br>";
-   
          if (class_exists($class)){
              if(method_exists($class,$method)){
                  $response = call_user_func(array($class,$method),$request);

@@ -35,7 +35,6 @@ class Page extends Element
                 }
             }
         }
-        
-        parent::show();
+         parent::show();
     }
 }

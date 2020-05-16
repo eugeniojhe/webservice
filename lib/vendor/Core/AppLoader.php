@@ -35,20 +35,14 @@ class AppLoader
     public function loadClass($class)
     {
 		$folders = $this->directories;
-		echo "<br>"; 
-        echo "STARTING LOADCLASS OF AppLoade01r CLASS ".$class."<br>";
-        echo "No diretorio ",
-        print_r($folders); 
-		echo "<br>"; 
-		 
-        foreach ($folders as $folder)
+		 foreach ($folders as $folder)
         {
-			
+            echo " Inside loadClass APPLOADER {$folder}/{$class}.php";
+            echo "<br>";
 			if (file_exists("{$folder}/{$class}.php"))
             {
 				require_once "{$folder}/{$class}.php";
-				echo "Classa found em   AppLoader01  {$folder}/{$class}.php------- "."<br>";
-                return TRUE;
+				return TRUE;
             }
             else
             {
@@ -61,14 +55,12 @@ class AppLoader
                             if (file_exists("{$entry}/{$class}.php"))
                             {
 								require_once "{$entry}/{$class}.php";
-								echo "----FILE FINDED ON SECOND FOREACH ITERATOR ------- "."<br>";
-                                return TRUE;
+								return TRUE;
                             }
                         }
                     }
                 }
             }
-		}
-		echo "----END OF INSIDE LOADCLASS APPLOADER01 "."<br>";
+		}		
     }
 }

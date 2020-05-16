@@ -1,6 +1,7 @@
 <?php
 
 	namespace Vendor\Database; 
+	use Vendor\Log\Logger; 
 	
 	final class Transaction{
 	
@@ -12,9 +13,6 @@
 	 	} 
 	 	public static function open($dataBase){
 	 		if (empty(self::$conn)){
-				 echo "VAI CHAMAR CONNECTION";
-				 echo "<br>"; 
-		  
 				 self::$conn = Connection::open($dataBase); 
 			     self::$conn->beginTransaction();
 	 		     self::$logger = NULL;

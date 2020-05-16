@@ -6,7 +6,7 @@ use Exception;
 
 /**
  * Cria conexões com bancos de dados
- * @author Pablo Dall'Oglio
+ * @author Eugenio 
  */
 final class Connection
 {

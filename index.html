@@ -1,0 +1,24 @@
+<html>
+    <head>
+      <title>Requests</title>
+    </head>
+    <body>
+      <h1>...Wellcome...</h1>
+      <script src="doingRequest.js">
+
+      </script>
+    </body>
+
+</html>
+
+const url = 'http://localhost/projetox/webservice/rest.php?class=pessoaServices&method=getData&id=1';
+const Http = new XMLHttpRequest();
+Http.open("GET", url);
+Http.send();
+
+Http.onreadystatechange = (e) => {
+  console.log('Inside onreadystatechange'); 
+  console.log(Http.responseText)
+}
+
+console.log(Http.responseText); 

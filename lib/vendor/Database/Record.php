@@ -1,326 +1,384 @@
 <?php
-namespace Vendor\Database;
+    namespace Vendor\Database;
 
-use Exception;
+    use Exception;
 
-/**
- * Permite definir um Active Record
- * @author Eugenio 
- */
-abstract class Record implements RecordInterface
-{
-    protected $data; // array contendo os dados do objeto
-    
     /**
-     * Instancia um Active Record. Se passado o $id, já carrega o objeto
-     * @param [$id] = ID do objeto
+     * Permite definir um Active Record
+     * @author Eugenio 
      */
-    public function __construct($id = NULL)
+    abstract class Record implements RecordInterface
     {
-        if ($id) // se o ID for informado
-        {
-            // carrega o objeto correspondente
-            $object = $this->load($id);
-            if ($object)
-            {
-                $this->fromArray($object->toArray());
-            }
-        }
-    }
-    
-    /**
-     * Limpa o ID para que seja gerado um novo ID para o clone.
-     */
-    public function __clone()
-    {
-        unset($this->data['id']);
-    }
-    
-    /**
-     * Executado sempre que uma propriedade for atribuída.
-     */
-    public function __set($prop, $value)
-    {
-        // verifica se existe método set_<propriedade>
-        if (method_exists($this, 'set_'.$prop))
-        {
-            // executa o método set_<propriedade>
-            call_user_func(array($this, 'set_'.$prop), $value);
-        }else
-        {
-            if ($value === NULL)
-            {
-                unset($this->data[$prop]);
-            }
-            else
-            {
-                // atribui o valor da propriedade
-                $this->data[$prop] = $value;
-            }
-        }
-    }
-    
-    /**
-     * Executado sempre que uma propriedade for requerida
-     */
-    public function __get($prop)
-    {
-        // verifica se existe método get_<propriedade>
-        if (method_exists($this, 'get_'.$prop))
-        {
-            // executa o método get_<propriedade>
-            return call_user_func(array($this, 'get_'.$prop));
-        }
-        else
-        {
-            // retorna o valor da propriedade
-            if (isset($this->data[$prop]))
-            {
-                return $this->data[$prop];
-            }
-        }
-    }
-    
-    /**
-     * Retorna se a propriedade está definida
-     */
-    public function __isset($prop)
-    {
-        return isset($this->data[$prop]);
-    }
-    
-    /**
-     * Retorna o nome da entidade (tabela)
-     */
-    private function getEntity()
-    {
-        // obtém o nome da classe
-        $class = get_class($this);
+        protected $data; // array contendo os dados do objeto
         
-        // retorna a constante de classe TABLENAME
-        return constant("{$class}::TABLENAME");
-    }
-    
-    /**
-     * Preenche os dados do objeto com um array
-     */
-    public function fromArray($data)
-    {
-        $this->data = $data;
-    }
-    
-    /**
-     * Retorna os dados do objeto como array
-     */
-    public function toArray()
-    {
-        return $this->data;
-    }
-    
-    /**
-     * Armazena o objeto na base de dados
-     */
-    public function store()
-    {
-        $prepared = $this->prepare($this->data);
-        
-        // verifica se tem ID ou se existe na base de dados
-        if (empty($this->data['id']) or (!$this->load($this->id)))
+        /**
+         * Instancia um Active Record. Se passado o $id, já carrega o objeto
+         * @param [$id] = ID do objeto
+         */
+        public function __construct($id = NULL)
         {
-            // incrementa o ID
-            if (empty($this->data['id']))
+            if ($id) // se o ID for informado
             {
-                $this->id = $this->getLast() +1;
-                $prepared['id'] = $this->id;
-            }
-            
-            // cria uma instrução de insert
-            $sql = "INSERT INTO {$this->getEntity()} " . 
-                   '('. implode(', ', array_keys($prepared))   . ' )'.
-                   ' values ' .
-                   '('. implode(', ', array_values($prepared)) . ' )';
-        }
-        else
-        {
-            // monta a string de UPDATE
-            $sql = "UPDATE {$this->getEntity()}";
-            // monta os pares: coluna=valor,...
-            if ($prepared) {
-                foreach ($prepared as $column => $value) {
-                    if ($column !== 'id') {
-                        $set[] = "{$column} = {$value}";
-                    }
+                // carrega o objeto correspondente
+                $object = $this->load($id);
+                if ($object)
+                {
+                    echo "Will call fromArray inside constructo"; 
+                    $this->fromArray($object->toArray());                
                 }
             }
-            $sql .= ' SET ' . implode(', ', $set);
-            $sql .= ' WHERE id=' . (int) $this->data['id'];
         }
         
-        // obtém transação ativa
-        if ($conn = Transaction::get())
+        /**
+         * Limpa o ID para que seja gerado um novo ID para o clone.
+         */
+        public function __clone()
         {
-            // faz o log e executa o SQL
-            Transaction::log($sql);
-            $result = $conn->exec($sql);
-            // retorna o resultado
-            return $result;
+            unset($this->data['id']);
         }
-        else
-        {
-            // se não tiver transação, retorna uma exceção
-            throw new Exception('Não há transação ativa!!');
-        }
-    }
-    
-    /*
-     * Recupera (retorna) um objeto da base de dados pelo seu ID
-     * @param $id = ID do objeto
-     */
-    public function load($id)
-    {
-        // instancia instrução de SELECT
-        $sql = "SELECT * FROM {$this->getEntity()}";
-        $sql .= ' WHERE id=' . (int) $id;
         
-        // obtém transação ativa
-        if ($conn = Transaction::get())
+        /**
+         * Executado sempre que uma propriedade for atribuída.
+         */
+        public function __set($prop, $value)
         {
-            // cria mensagem de log e executa a consulta
-            Transaction::log($sql);
-            $result= $conn->query($sql);
-            
-            // se retornou algum dado
-            if ($result)
+            // verifica se existe método set_<propriedade>
+            if (method_exists($this, 'set_'.$prop))
             {
-                // retorna os dados em forma de objeto
-                $object = $result->fetchObject(get_class($this));
+                // executa o método set_<propriedade>
+                call_user_func(array($this, 'set_'.$prop), $value);
+            }else
+            {
+                if ($value === NULL)
+                {
+                    unset($this->data[$prop]);
+                }
+                else
+                {
+                    // atribui o valor da propriedade
+                    echo "Inside __set Method"; 
+                    echo "<br>"; 
+
+                    
+                    $this->data[$prop] = $value;
+                    var_dump($this->data);
+                    echo "<br>";  
+                }
             }
-            return $object;
         }
-        else
-        {
-            // se não tiver transação, retorna uma exceção
-            throw new Exception('Não há transação ativa!!');
-        }
-    }
-    
-    /**
-     * Exclui um objeto da base de dados através de seu ID.
-     * @param $id = ID do objeto
-     */
-    public function delete($id = NULL)
-    {
-        // o ID é o parâmetro ou a propriedade ID
-        $id = $id ? $id : $this->id;
         
-        // monsta a string de UPDATE
-        $sql  = "DELETE FROM {$this->getEntity()}";
-        $sql .= ' WHERE id=' . (int) $this->data['id'];
-        
-        // obtém transação ativa
-        if ($conn = Transaction::get())
+        /**
+         * Executado sempre que uma propriedade for requerida
+         */
+        public function __get($prop)
         {
-            // faz o log e executa o SQL
-            Transaction::log($sql);
-            $result = $conn->exec($sql);
-            // retorna o resultado
-            return $result;
-        }
-        else
-        {
-            // se não tiver transação, retorna uma exceção
-            throw new Exception('Não há transação ativa!!');
-        }
-    }
-    
-    /**
-     * Retorna o último ID
-     */
-    private function getLast()
-    {
-        // inicia transação
-        if ($conn = Transaction::get())
-        {
-            // instancia instrução de SELECT
-            $sql  = "SELECT max(id) FROM {$this->getEntity()}";
-            
-            // cria log e executa instrução SQL
-            Transaction::log($sql);
-            $result= $conn->query($sql);
-            
-            // retorna os dados do banco
-            $row = $result->fetch();
-            return $row[0];
-        }
-        else
-        {
-            // se não tiver transação, retorna uma exceção
-            throw new Exception('Não há transação ativa!!');
-        }
-    }
-    
-    /**
-     * Retorna todos objetos
-     */
-    public static function all()
-    {
-        $classname = get_called_class();
-        $rep = new Repository($classname);
-        return $rep->load(new Criteria);
-    }
-    
-    /**
-     * Busca um objeto pelo id
-     */
-    public static function find($id)
-    {
-        $classname = get_called_class();
-        echo "Inside find method of in record ".$classname;
-        echo "<br>";
-        $ar = new $classname;
-        return $ar->load($id);
-    }
-    
-    public function prepare($data)
-    {
-        $prepared = array();
-        foreach ($data as $key => $value)
-        {
-            if (is_scalar($value))
+            // verifica se existe método get_<propriedade>
+            if (method_exists($this, 'get_'.$prop))
             {
-                $prepared[$key] = $this->escape($value);
-            }
-        }
-        return $prepared;
-    }
-    
-    public function escape($value)
-    {
-        // verifica se é um dado escalar (string, inteiro, ...)
-        if (is_scalar($value))
-        {
-            if (is_string($value) and (!empty($value)))
-            {
-                // adiciona \ em aspas
-                $value = addslashes($value);
-                // caso seja uma string
-                return "'$value'";
-            }
-            else if (is_bool($value))
-            {
-                // caso seja um boolean
-                return $value ? 'TRUE': 'FALSE';
-            }
-            else if ($value!=='')
-            {
-                // caso seja outro tipo de dado
-                return $value;
+                // executa o método get_<propriedade>
+                return call_user_func(array($this, 'get_'.$prop));
             }
             else
             {
-                // caso seja NULL
-                return "NULL";
+                // retorna o valor da propriedade
+                if (isset($this->data[$prop]))
+                {
+                    return $this->data[$prop];
+                }
+            }
+        }
+        
+        /**
+         * Retorna se a propriedade está definida
+         */
+        public function __isset($prop)
+        {
+            return isset($this->data[$prop]);
+        }
+        
+        /**
+         * Retorna o nome da entidade (tabela)
+         */
+        private function getEntity()
+        {
+            // obtém o nome da classe
+            $class = get_class($this);
+            
+            // retorna a constante de classe TABLENAME
+            return constant("{$class}::TABLENAME");
+        }
+        
+        /**
+         * Preenche os dados do objeto com um array
+         */
+        public function fromArray($data)
+        {
+            echo "Inside fromArray"; 
+            exit; 
+            $this->data = $data;
+        }
+        
+        /**
+         * Retorna os dados do objeto como array
+         */
+        public function toArray()
+        {   
+            return $this->data;
+        }
+        
+        /**
+         * Armazena o objeto na base de dados
+         */
+        public function store()
+        {
+            $prepared = $this->prepare($this->data);
+            
+            // verifica se tem ID ou se existe na base de dados
+            if (empty($this->data['id']) or (!$this->load($this->id)))
+            {
+                // incrementa o ID
+                if (empty($this->data['id']))
+                {
+                    $this->id = $this->getLast() +1;
+                    $prepared['id'] = $this->id;
+                }
+                
+                // cria uma instrução de insert
+                $sql = "INSERT INTO {$this->getEntity()} " . 
+                    '('. implode(', ', array_keys($prepared))   . ' )'.
+                    ' values ' .
+                    '('. implode(', ', array_values($prepared)) . ' )';
+            }
+            else
+            {
+                // monta a string de UPDATE
+                $sql = "UPDATE {$this->getEntity()}";
+                // monta os pares: coluna=valor,...
+                if ($prepared) {
+                    foreach ($prepared as $column => $value) {
+                        if ($column !== 'id') {
+                            $set[] = "{$column} = {$value}";
+                        }
+                    }
+                }
+                $sql .= ' SET ' . implode(', ', $set);
+                $sql .= ' WHERE id=' . (int) $this->data['id'];
+            }
+            
+            // obtém transação ativa
+            if ($conn = Transaction::get())
+            {
+                // faz o log e executa o SQL
+                Transaction::log($sql);
+                $result = $conn->exec($sql);
+                // retorna o resultado
+                return $result;
+            }
+            else
+            {
+                // se não tiver transação, retorna uma exceção
+                throw new Exception('Não há transação ativa!!');
+            }
+        }
+        
+        /*
+        * Recupera (retorna) um objeto da base de dados pelo seu ID
+        * @param $id = ID do objeto
+        */
+        public function load($id)
+        {
+            // instancia instrução de SELECT
+        /// $id = (int) 2; 
+            echo "Inside load ";
+            echo "<br><br>"; 
+            $sql = "SELECT * FROM {$this->getEntity()}";
+            $sql .= ' WHERE id=' . (int) $id;
+            
+            // obtém transação ativa
+            if ($conn = Transaction::get())
+            {
+                // cria mensagem de log e executa a consulta
+                Transaction::log($sql);
+                $result= $conn->query($sql);
+            
+            // var_dump($result); 
+                
+            /*  foreach($result as $ret){
+                    echo  $ret['nome'];
+                    echo  $ret['id'].'<br>'; 
+
+                } */
+            /*
+            $array = array();
+            while ($person = $result->fetchObject(get_class($this))){
+                $array[] = $person;  
+            }
+
+                var_dump($array[10]); 
+                echo "<br><br"; 
+            */
+                
+                // se retornou algum dado
+                if ($result)
+                {
+                    // retorna os dados em forma de objeto
+                    echo "Going to __set Method"; 
+                    echo "<br>"; 
+                    $object = $result->fetchObject(get_class($this));
+                    $this->teste($object->carregar()); 
+                    
+                }
+            // echo "<br><br>"; 
+                
+                /*var_dump($object); 
+                exit; */  
+                return $object;
+            }
+            else
+            {
+                // se não tiver transação, retorna uma exceção
+                throw new Exception('Não há transação ativa!!');
+            }
+        }
+        
+        /**
+         * Exclui um objeto da base de dados através de seu ID.
+         * @param $id = ID do objeto
+         */
+        public function delete($id = NULL)
+        {
+            // o ID é o parâmetro ou a propriedade ID
+            $id = $id ? $id : $this->id;
+            
+            // monsta a string de UPDATE
+            $sql  = "DELETE FROM {$this->getEntity()}";
+            $sql .= ' WHERE id=' . (int) $this->data['id'];
+            
+            // obtém transação ativa
+            if ($conn = Transaction::get())
+            {
+                // faz o log e executa o SQL
+                Transaction::log($sql);
+                $result = $conn->exec($sql);
+                // retorna o resultado
+                return $result;
+            }
+            else
+            {
+                // se não tiver transação, retorna uma exceção
+                throw new Exception('Não há transação ativa!!');
+            }
+        }
+        
+        /**
+         * Retorna o último ID
+         */
+        private function getLast()
+        {
+            // inicia transação
+            if ($conn = Transaction::get())
+            {
+                // instancia instrução de SELECT
+                $sql  = "SELECT max(id) FROM {$this->getEntity()}";
+                
+                // cria log e executa instrução SQL
+                Transaction::log($sql);
+                $result= $conn->query($sql);
+                
+                // retorna os dados do banco
+                $row = $result->fetch();
+                return $row[0];
+            }
+            else
+            {
+                // se não tiver transação, retorna uma exceção
+                throw new Exception('Não há transação ativa!!');
+            }
+        }
+        
+        /**
+         * Retorna todos objetos
+         */
+        public static function all()
+        {
+            $classname = get_called_class();
+            $rep = new Repository($classname);
+            return $rep->load(new Criteria);
+        }
+        
+        /**
+         * Busca um objeto pelo id
+         */
+        public function carregar(){
+            return $this->data; 
+        }
+        public function teste($data){
+        
+            echo "Inside teste()";
+            echo "<br>"; 
+            $this->data = $data;
+            var_dump($this->data);  
+            echo "<br>"; 
+            
+        }
+        public static function find($id)
+        {
+            $classname = get_called_class();
+        
+
+        // $classname::teste();
+            $ar = new $classname;
+            
+            //$ret =  $ar->load($id); 
+            //$ar->teste(); 
+            echo "Inside find function ";
+            echo "<br>"; 
+        // var_dump($ret->data); 
+        // echo "<br>"; 
+            //exit; 
+            return $ar->load($id);
+        }
+        
+        public function prepare($data)
+        {
+            $prepared = array();
+            foreach ($data as $key => $value)
+            {
+                if (is_scalar($value))
+                {
+                    $prepared[$key] = $this->escape($value);
+                }
+            }
+            return $prepared;
+        }
+        
+        public function escape($value)
+        {
+            // verifica se é um dado escalar (string, inteiro, ...)
+            if (is_scalar($value))
+            {
+                if (is_string($value) and (!empty($value)))
+                {
+                    // adiciona \ em aspas
+                    $value = addslashes($value);
+                    // caso seja uma string
+                    return "'$value'";
+                }
+                else if (is_bool($value))
+                {
+                    // caso seja um boolean
+                    return $value ? 'TRUE': 'FALSE';
+                }
+                else if ($value!=='')
+                {
+                    // caso seja outro tipo de dado
+                    return $value;
+                }
+                else
+                {
+                    // caso seja NULL
+                    return "NULL";
+                }
             }
         }
     }
-}
