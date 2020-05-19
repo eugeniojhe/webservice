@@ -1,1 +1,1 @@
-2020-05-15 22:19:12 :: SELECT * FROM pessoa WHERE id=1
+2020-05-19 16:04:00 :: SELECT * FROM pessoa WHERE id=1

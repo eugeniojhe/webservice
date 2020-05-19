@@ -5,10 +5,14 @@
         {
             $id_pessoa = $request['id'];
             $pessoa_array = array();
+            echo "Vai abri transaction ";
+            echo "<br>"; 
             Transaction::open('livro');
             echo "Vai abrir LoggerTXT "; 
             echo "<br>";
-            $log = new Vendor\Log\LoggerTXT('./logService.txt'); 
+           // $log = new Vendor\Log\LoggerTXT('./logService.txt'); 
+            $log = new LoggerTXT('./logService.txt');
+            print_r($log); 
             echo "Abriu ";
             echo "<br>"; 
             

@@ -41,8 +41,12 @@ class AppLoader
             echo "<br>";
 			if (file_exists("{$folder}/{$class}.php"))
             {
-				require_once "{$folder}/{$class}.php";
-				return TRUE;
+                echo "The file above was found "; 
+                echo "<br>"; 
+                require_once "{$folder}/{$class}.php";
+                return TRUE;
+                //require "{$folder}/{$class}.php";
+               // return "{$folder}/{$class}.php";
             }
             else
             {

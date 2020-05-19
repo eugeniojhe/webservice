@@ -1,5 +1,5 @@
 <?php
-    namespace Vendor\Log; 
+    //namespace Vendor\Log; 
     use Vendor\Log\Logger;  
     class LoggerTXT extends Logger{
         public function write($message){
